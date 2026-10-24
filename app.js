@@ -346,6 +346,11 @@
         }
         const cacheKey = avatar + String.fromCharCode(0) + size + String.fromCharCode(0) + version;
         let objectUrl = state.avatarUrls.get(cacheKey);
+        if (!objectUrl && size === 'thumb' && state.avatarBatch) {
+          const batch = await state.avatarBatch;
+          objectUrl = batch.get(avatar) || '';
+          if (objectUrl) state.avatarUrls.set(cacheKey, objectUrl);
+        }
         if (!objectUrl) {
           const response = await apiFetch('/api/avatar?name=' + encodeURIComponent(avatar) + '&size=' + encodeURIComponent(size) + '&v=' + version, {
             headers: { 'X-Telegram-Init-Data': initData },
@@ -613,11 +618,32 @@
     status.className = `status ${type}`.trim();
   }
 
+  // Все превью одним запросом; при ошибке картинки догрузятся по одной.
+  async function loadAvatarBatch() {
+    const urls = new Map();
+    try {
+      const response = await apiFetch('/api/avatar-batch', { headers: { 'X-Telegram-Init-Data': initData } });
+      if (!response.ok) return urls;
+      const result = await response.json();
+      const type = result.type || 'image/webp';
+      for (const [name, data] of Object.entries(result.items || {})) {
+        const binary = atob(data);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        urls.set(name, URL.createObjectURL(new Blob([bytes], { type })));
+      }
+    } catch (error) {
+      console.warn('Пакет превью не загрузился', error);
+    }
+    return urls;
+  }
+
   async function loadCatalogData() {
     const response = await apiFetch('/api/characters', { headers: { 'X-Telegram-Init-Data': initData } });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Не удалось загрузить каталог');
     state.characters = Array.isArray(result.characters) ? result.characters : [];
+    if (!state.avatarBatch) state.avatarBatch = loadAvatarBatch();
     state.canManageAvatars = Boolean(result.canManageAvatars);
     $('#message-balance').textContent = String(result.messageBalance ?? '—');
     $('#image-balance').textContent = String(result.imageBalance ?? '—');
