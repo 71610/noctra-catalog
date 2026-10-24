@@ -1,0 +1,1 @@
+window.MINIAPP_DEMO_CHARACTERS = [];
