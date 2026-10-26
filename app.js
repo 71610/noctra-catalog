@@ -110,7 +110,8 @@
 
   function charactersForView() {
     return state.characters.filter(character => {
-      if (state.style !== 'all' && normalizeStyle(character) !== state.style) return false;
+      if (state.style === 'new') { if (!character.isNew) return false; }
+      else if (state.style !== 'all' && normalizeStyle(character) !== state.style) return false;
       if (state.role && String(character.role || '').toLocaleLowerCase('ru') !== state.role) return false;
       if (state.age && ageBand(character.age) !== state.age) return false;
       if (state.query) {
@@ -118,7 +119,7 @@
         if (!haystack.includes(state.query)) return false;
       }
       return true;
-    }).sort((a, b) => state.sortByName ? a.name.localeCompare(b.name, 'ru') : 0);
+    }).sort((a, b) => state.sortByName ? a.name.localeCompare(b.name, 'ru') : (state.style === 'new' ? (Number(b.addedAt) || 0) - (Number(a.addedAt) || 0) : 0));
   }
 
   function countStyles() {
@@ -127,6 +128,8 @@
     $('#count-all').textContent = String(state.characters.length);
     $('#count-realistic').textContent = String(realistic);
     $('#count-anime').textContent = String(anime);
+    const newCountEl = $('#count-new');
+    if (newCountEl) newCountEl.textContent = String(state.characters.filter(character => character.isNew).length);
     $('#character-count').textContent = String(state.characters.length);
   }
 
@@ -148,7 +151,7 @@
     // Для карточек с возрастом показываем компактный порядок:
     // возраст → раса → жанр → характер. Остальные карточки сохраняют прежнюю высоту.
     const cardTagLimit = character.ageTag ? 4 : 3;
-    const cardTags = [character.ageTag || ageLabel(character), ...tags].filter(Boolean).slice(0, cardTagLimit);
+    const cardTags = [character.isNew ? '🆕 Новинка' : '', character.ageTag || ageLabel(character), ...tags].filter(Boolean).slice(0, cardTagLimit);
     const greetingCount = Math.max(0, Math.floor(Number.isFinite(Number(character.greetingCount))
       ? Number(character.greetingCount)
       : (Array.isArray(character.greetings) ? character.greetings.length : 0)));

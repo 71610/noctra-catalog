@@ -63,8 +63,8 @@ h1 span { color: #f17fc7; }
 .search-wrap input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 13px; }
 .search-wrap input::placeholder { color: #887e93; }
 .search-wrap kbd { padding: 3px 5px; border: 1px solid var(--line); border-radius: 5px; color: #92869e; font-size: 9px; white-space: nowrap; }
-.style-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; margin-top: 14px; padding: 4px; border: 1px solid var(--line); border-radius: 15px; background: #201a2b; }
-.style-tab { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 39px; border: 0; border-radius: 11px; background: transparent; color: #b0a5bb; font-size: 12px; font-weight: 600; cursor: pointer; transition: .18s ease; }
+.style-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; margin-top: 14px; padding: 4px; border: 1px solid var(--line); border-radius: 15px; background: #201a2b; }
+.style-tab { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 39px; padding: 0 2px; white-space: nowrap; border: 0; border-radius: 11px; background: transparent; color: #b0a5bb; font-size: 12px; font-weight: 600; cursor: pointer; transition: .18s ease; }
 .style-tab small { color: #81768e; font-size: 10px; }
 .style-tab.active { color: #fff; background: linear-gradient(100deg, #b76ce5, #e671bd); box-shadow: 0 4px 14px rgba(198,96,206,.22); }
 .style-tab.active small { color: rgba(255,255,255,.76); }
